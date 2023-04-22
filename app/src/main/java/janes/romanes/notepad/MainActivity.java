@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,69 +35,33 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences sharedPreferences;
 
-
+    ImageView addNote;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar myToolbar = findViewById(R.id.toolbar);
-        myToolbar.setTitle("Notepad");
-        setSupportActionBar(myToolbar);
         sharedPreferences = getSharedPreferences("MODE", MODE_PRIVATE);
-        boolean nightMode = sharedPreferences.getBoolean("night", false);
-
-        if(nightMode)
-        {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        }
-        else
-        {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
+        addNote = findViewById(R.id.addNote);
 
         notesView = findViewById(R.id.notesList);
 
         notesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, noteTitles);
         loadNotes();
         notesView.setAdapter(notesAdapter);
+
+        addNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addNewNote("", "", -1);
+            }
+        });
         notesView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent newNote = new Intent(MainActivity.this, NewNoteActivity.class);
-                newNote.putExtra("Title", notes.get(i).getTitle());
-                newNote.putExtra("Note", notes.get(i).getNote());
-                newNote.putExtra("Element", i);
-                startActivity(newNote);
+                addNewNote(notes.get(i).getTitle(), notes.get(i).getNote(), i);
             }
         });
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch(item.getItemId())
-        {
-            case R.id.newNote:
-                Intent newNote = new Intent(this, NewNoteActivity.class);
-                newNote.putExtra("Title", "");
-                newNote.putExtra("Note", "");
-                newNote.putExtra("Element", -1);
-                startActivity(newNote);
-                return true;
-            case R.id.settings:
-                Intent settings = new Intent(this, SettingsActivity.class);
-                startActivity(settings);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
 
     }
 
@@ -118,6 +83,15 @@ public class MainActivity extends AppCompatActivity {
             notes.add(n);
         }
         notesAdapter.notifyDataSetChanged();
+    }
+
+    private void addNewNote(String title, String note, int element)
+    {
+        Intent newNote = new Intent(this, NewNoteActivity.class);
+        newNote.putExtra("Title", title);
+        newNote.putExtra("Note", note);
+        newNote.putExtra("Element", element);
+        startActivity(newNote);
     }
 
 }

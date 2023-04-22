@@ -11,13 +11,16 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 public class NewNoteActivity extends AppCompatActivity {
 
     public EditText titleEt;
     public EditText noteEt;
 
+    ImageView saveNote;
     int element;
     SharedPreferences sp;
 
@@ -26,46 +29,43 @@ public class NewNoteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_note);
 
-        Toolbar myToolbar = findViewById(R.id.toolbar);
-        myToolbar.setTitle("Edit note");
-        setSupportActionBar(myToolbar);
-
         titleEt = findViewById(R.id.titleEt);
         noteEt = findViewById(R.id.noteEt);
 
         titleEt.setText(getIntent().getExtras().getString("Title"));
         noteEt.setText(getIntent().getExtras().getString("Note"));
         element = getIntent().getExtras().getInt("Element");
+        saveNote = findViewById(R.id.saveNote);
 
         sp = getSharedPreferences("MyNotes", MODE_PRIVATE);
 
-
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.note_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId())
-        {
-            case R.id.saveNote:
+        saveNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 saveNote();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+            }
+        });
 
-        }
+
+
     }
+
 
     private void saveNote()
     {
         SharedPreferences.Editor editor = sp.edit();
+
+        if(titleEt.getText().toString().isEmpty())
+        {
+            titleEt.setError("Input a title!");
+            return;
+        }
+
+        if(noteEt.getText().toString().isEmpty())
+        {
+            noteEt.setError("Input a note!");
+            return;
+        }
 
         if(element == -1)
         {
